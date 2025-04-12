@@ -1,0 +1,696 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="https://www.ams.org/images/content/bubbles.png" type="image/x-icon">
+<link rel="icon" href="https://www.ams.org/images/content/bubbles.png" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/amsuser3.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/assign.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/clickmenu.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/impromptu.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/jquery.fileupload.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/twbs-2.3.2.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/mresubs_home3.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/font-awesome-css.min.css">
+<link rel="stylesheet" type="text/css" href="/mathscinet/css/mresubs_footer.css">
+
+<script type="text/javascript" src="/mathscinet/javascript/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="/mathscinet/javascript/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="/mathscinet/javascript/jquery.clickmenu.js"></script>
+<script type="text/javascript" src="/mathscinet/javascript/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="/mathscinet/javascript/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/mathscinet/javascript/jquery.fileupload.js"></script>
+<script type="text/javascript" src="/mathscinet/javascript/jquery.cookie.js"></script>
+<script type="text/javascript" src="/mathscinet/javascript/jquery-impromptu.3.1.min.js"></script>
+<script src="https://use.fontawesome.com/7da0d8a943.js"></script>
+<SCRIPT type="text/javascript" language="JavaScript">
+
+function infoChange(type)
+{
+   document.getElementById(type).value = 1;
+};
+
+jQuery(document).ready(function()
+{
+   $('#admin').clickMenu();
+   $('div[class="cmDiv"]').css('border-width', '0px');
+   $('div[class="cmDiv"]').css('float', 'middle');
+   $('div[class="cmDiv"]').css('background-color', '#98A4AE');
+   $('li[class~="main"]').css('background-color', '#98A4AE');
+   $('li[class~="main"]').css('left', '70%');
+   $('#menubox').css('width', '300');
+   $('#menubox').css('height', '100');
+
+   // Focus on change reviewer code input, if it exists
+   if ($('#rcode').length)
+   {   
+      $('#rcode').trigger('focus');
+   };
+
+   errStr = "";
+   if (errStr.length)
+   {
+      alert(errStr);
+   }
+
+   // Stop double click on review submission form
+   $('#reviewSubmit').one(function()
+   {
+      $(this).attr("disabled","disabled");
+      $("#mresubSubmit").click();
+   });
+   
+   // Handle reviewer code input on index.html
+   $('#addRcode').submit(function()
+   {
+      revc = $('#rcinput').val();
+      var patt = /^\d+$/;
+      if (patt.test(revc))
+      {
+         return(true);
+      }
+      else
+      {   
+         alert('Reviewer code: ' + revc + ' must be a number');
+         return(false);
+      }
+   });
+
+   // cno.html for checking
+   $('#cnoform').submit(function()
+   {
+      cno = $('#cno').val();
+      rc = $('#rc').val();
+      nonblank = /\S/m;
+      valid = 1;
+
+      if (cno == null || cno == "" || ! cno.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter an MR number.");
+      }
+      else if (rc == null || rc == "" || ! rc.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter a reviewer number.");
+      }
+
+      if (valid)
+      {
+         return(true);
+      }
+      else
+      {
+         return(false);
+      }
+   });
+
+   // Reviewer info change handling
+   $('#rinfochg').submit(function()
+   {
+      var nonblank = /\S/m;
+
+      // Name processing
+      fname = $('#firstName').val().trim();
+      lname = $('#lastName').val().trim();
+      mname = $('#middleName').val().trim();
+      sname = $('#suffix').val().trim();
+      rname = lname;
+
+      // non blank last name plus non blank first or middle, add a comma after last name
+      if ((fname.match(nonblank) || mname.match(nonblank)) && lname.match(nonblank))
+      {
+         rname = rname+',';
+      }
+
+      // Add first name
+      if (fname.match(nonblank))
+      {
+         rname = rname+' '+fname;
+      }
+
+      // Add middle name
+      if (mname.match(nonblank))
+      {
+         rname = rname+' '+mname;
+      }
+
+      // Add suffix
+      if (sname.match(nonblank))
+      {
+         // non blank first or middle, add a comma, otherwise add a space
+         if (fname.match(nonblank) || mname.match(nonblank))
+         {
+            rname = rname+',';
+         }
+         else
+         {
+            rname = rname+' ';
+         }
+
+         // Add suffix
+         rname = rname+sname;
+      }
+      $('#revName').val(rname);
+
+      addr = $('#addr').val();
+      email = $('#email').val();
+      plang = $('#pLang').val();
+      rclass = $('#class').val();
+      interest = $('#interest').val();
+      var valid = 1;
+
+      if (addr == null || addr == "" || ! addr.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter a mailing address.");
+         $('#addr').trigger('focus');
+         $('#addr').trigger('select');
+      }
+      else if (email == null || email == "" || ! email.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter an email address.");
+         $('#email').trigger('focus');
+         $('#email').trigger('select');
+      }
+      else if (rname == null || rname == "" || ! rname.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter your name.");
+         $('#revName').trigger('focus');
+         $('#revName').trigger('select');
+      }
+      else if (plang == null || plang == "" || ! plang.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter your primary language.");
+         $('#pLang').trigger('focus');
+         $('#pLang').trigger('select');
+      }
+      else if (rclass == null || rclass == "" || ! rclass.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter at least one MSC2010 class.");
+         $('#class').trigger('focus');
+         $('#class').trigger('select');
+      }
+      else if (interest == null || interest == "" || ! interest.match(nonblank))
+      {
+         valid = 0;
+         alert ("Please enter your area of interest.");
+         $('#interest').trigger('focus');
+         $('#interest').trigger('select');
+      }
+      else
+      {
+         if ($('#emailchange').val() == 1)
+         {
+            // Make sure we have at least a minimally valid email address
+            var atsign = /@/;
+            emails = email.split(" ");
+            for(i = 0; i < emails.length; i++)
+            {
+               if (! emails[i].match(atsign))
+               {
+                  valid = 0;
+                  alert(emails[i] + " is not a valid email address.");
+                  $('#email').trigger('focus');
+                  $('#email').trigger('select');
+               }
+            }
+         }
+      }
+
+      if (valid)
+      {
+         return(true);
+      }
+      else
+      {
+         return(false);
+      }
+   });
+			   
+   function promptback(v,m,f) 
+   { 
+      if (v)
+      {
+         if (f.passw == 'AMY')
+	 {
+            $.get("./moveToAssigned.html",
+            {
+               paperId: paperId,
+               rcode: $("#rc").val()
+            },
+            function() {window.location.reload();});
+         }
+         else
+         {
+            alert("Password incorrect.");
+         }
+      }
+   };
+
+   $(".delSub").click(function()
+   {
+      paperId = $(this).attr('id');
+      $.prompt('Please enter the password<br><input type="text" name="passw"><br>Delete '+paperId+' from the submitted list?',{ buttons: { YES: 1, no: 0 }, focus: 1, callback: promptback });
+   });
+      			   
+   // This deletes a language <tr> when the button is clicked
+   // and also removes the language from the hidden textarea
+   $(".langbutton").click(function()
+   {
+      delval = $(this).closest("td").attr("id");
+      $(this).closest("tr").remove();
+      langval = $("#pLang").val();
+      lregex = new RegExp(delval, "g");
+      $("#pLang").val(langval.replace(lregex,""));
+   });
+
+   $(function () 
+   {
+       $('#fileupload').fileupload(
+       {
+          url: './upload',
+          dataType: 'json',
+          done: function (e, data) 
+          {
+	      $("#review").val(data.result.files[0].contents);
+          }
+       });
+   });
+});
+
+// Populate lang text area and display buttons from pulldown menu
+function langSelect()
+{
+   langsel = $('#langlist option:selected').val();
+   currlang = $('#pLang').val().trim();
+   if (currlang.toLowerCase().indexOf(langsel.toLowerCase()) == -1)
+   {
+      $('#langtbl').append('<tr><td id="'+langsel+'">'+langsel+'<input type="button" class="langbutton" value="X" /></td></tr>');
+      langsel = ' '+langsel;
+      $('#pLang').val(currlang+langsel);
+
+      $(".langbutton").click(function()
+      {
+         delval = $(this).closest("td").attr("id");
+         $(this).closest("tr").remove();
+         langval = $("#pLang").val();
+         lregex = new RegExp(delval, "g");
+         $("#pLang").val(langval.replace(lregex,""));
+      });
+   }
+};
+
+function changeDate()
+{
+   var newDt=document.getElementById('date').value;
+   location.href="webLog.html?date="+newDt;
+}
+
+function searchStr()
+{
+   var search=document.getElementById('search').value;
+   location.href="webLog.html?search="+search;
+}   
+
+
+</SCRIPT>
+
+<TITLE>Mathematical Reviews Review history of  Maulik A. Dave</TITLE>
+</head>
+<body>
+   <h1>Dr. Maulik A. Dave, Ph.D.</h1>
+	<p><a href="./index.html">Here all about my work history.</a></p>
+   <!--
+<div id="topDiv" align="center">
+<a href="https://www.ams.org"><img src="/mathscinet/images/ams-logo-header.png" align="center"/></a>
+</div> 
+-->
+<form>
+<input type="hidden" name="host" value="HOST=chicago.ams.org">
+</form>
+<div id="outerDiv" align="center">
+     <TABLE width="960" cellspacing="0" cellpadding="0" border="0" align="center">
+     <tbody>
+     <tr style="display:none">
+     <td align="left" id="importantUpdate" nowrap="nowrap">IMPORTANT NOTICE</td>
+     <td align="left" id="importantMessage">The AMS website will be down for maintenance on Tuesday April 25, 2017 between 5:00 PM - 8:00 PM EDT.</a><br>
+     </td>
+     </tr>
+     <tr><td>&nbsp;</td></tr>
+     <TR> 
+     <TD valign="top">
+     </TD>
+     <td id="timestamp">
+     2025-04-12
+     </td>  
+     </TR>
+     </tbody>
+     </TABLE>
+
+
+     <table id="mrbar" width="960" cellspacing="0" cellpadding="0" border="0">
+     <tbody>
+     <tr>
+<!--
+        <td>
+        
+<A href="/mresubs/signout.html?caller=/mresubs/index.html"
+ class="mrbarlink nounderline">
+        Log Out</A>
+        </td>
+
+
+
+           <td>
+           <A href="/mresubs/revUpdateInfo.html" class="mrbarlink nounderline">
+           Change My Reviewer Info</A>
+           </td>
+
+
+
+        <td>
+        <A href="/mresubs/help_mresubs.html" class="mrbarlink nounderline">
+         Help</A>
+        </td>
+      -->
+
+     <td>
+     <A href="mailto:mathrev@ams.org" class="mrbarlink nounderline">
+      Contact MR</A>
+     </td>
+     </tr>
+     </tbody>
+     </table>
+
+<div id="splash" class="white">
+<br><br><br>
+<h2>Mathematical Reviews<BR>Review history of  Maulik A. Dave</h2>
+</div>
+
+
+
+
+<div class="homediv" align="left">
+<div class="homedivcontent">
+</div>
+<hr />
+<div>
+<center><h2 style="color:#0057b8">31 total reviews</h2></center>
+</div>
+<hr />
+<div>
+        <div class="mrbar" align="center">
+        2017 (4 reviews)
+        </div>
+        <div class="homedivcontent">
+        <table style="border-collapse: separate; border-spacing: 10px;">
+<tr>
+<td style="vertical-align:top">Apr&nbsp;25</td>
+<td><strong>MR3547749</strong></A>&nbsp;van Steen, Maarten; Tanenbaum, Andrew S. A brief introduction to distributed systems.
+ <EM>Computing</EM> <STRONG> 98 </STRONG> (2016),  no. 10, 967--1009.   68M14
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Jan&nbsp;26</td>
+<td><strong>MR3522013</strong></A>&nbsp;Riguzzi, Fabrizio The distribution semantics for normal programs with function symbols.
+ <EM>Internat. J. Approx. Reason.</EM>  77  (2016), 1--19.   68Q55 (68N17)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Jan&nbsp;10</td>
+<td><strong>MR3516255</strong></A>&nbsp;Ueda, Kazunori Logic/constraint programming and concurrency: the hard-won lessons of the fifth generation computer project.
+<EM> Functional and logic programming, </EM>
+ 1--11, Lecture Notes in Comput. Sci., 9613, <EM>Springer, [Cham],</EM>  2016.    68N17 (01A60 68-03 68Q85)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Jan&nbsp;05</td>
+<td><strong>MR3513751</strong></A>&nbsp;Ferrucci, L.; Ricci, L.; Albano, M.; Baraglia, R.; Mordacchini, M. Multidimensional range queries on hierarchical Voronoi overlays.
+ <EM>J. Comput. System Sci.</EM> <STRONG> 82 </STRONG> (2016),  no. 7, 1161--1179.   68M14 (68U05)
+</td>
+</td>
+</tr>
+           </table>
+           </div>
+        <div class="mrbar" align="center">
+        2016 (1 review)
+        </div>
+        <div class="homedivcontent">
+        <table style="border-collapse: separate; border-spacing: 10px;">
+<tr>
+<td style="vertical-align:top">Nov&nbsp;01</td>
+<td><strong>MR3495316</strong></A>&nbsp;Mousavi, Mohammad Reza; Basten, Twan; Reniers, Michel A.; Chaudron, Michel Timed-Gamma and its coordination language.
+ <EM>Nordic J. Comput.</EM> <STRONG> 15 </STRONG> (2015),  no. 2, 75--111.   68N17 (68N19)
+</td>
+</td>
+</tr>
+           </table>
+           </div>
+        <div class="mrbar" align="center">
+        2009 (3 reviews)
+        </div>
+        <div class="homedivcontent">
+        <table style="border-collapse: separate; border-spacing: 10px;">
+<tr>
+<td style="vertical-align:top">Mar&nbsp;06</td>
+<td><strong>MR2423541</strong></A>&nbsp;Armknecht, Frederik; Carlet, Claude; Gaborit, Philippe; Künzli, Simon; Meier, Willi; Ruatta, Olivier Efficient computation of algebraic immunity for algebraic and fast algebraic attacks.
+<EM> Advances in cryptology—EUROCRYPT 2006, </EM>
+ 147--164, Lecture Notes in Comput. Sci., 4004, <EM>Springer, Berlin,</EM>  2006.    94A60 (68W05 94A55)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Feb&nbsp;26</td>
+<td><strong>MR2322868</strong></A>&nbsp;Špalek, Robert; Szegedy, Mario All quantum adversary methods are equivalent.
+ <EM>Theory Comput.</EM>  2  (2006), 1--18.   81P68 (68Q17)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Feb&nbsp;20</td>
+<td><strong>MR2399794</strong></A>&nbsp;Garcia, Flavio D.; van Rossum, Peter Sound and complete computational interpretation of symbolic hashes in the standard model.
+ <EM>Theoret. Comput. Sci.</EM> <STRONG> 394 </STRONG> (2008),  no. 1-2, 112--133.   94A60 (68M12 68P25)
+</td>
+</td>
+</tr>
+           </table>
+           </div>
+        <div class="mrbar" align="center">
+        2008 (3 reviews)
+        </div>
+        <div class="homedivcontent">
+        <table style="border-collapse: separate; border-spacing: 10px;">
+<tr>
+<td style="vertical-align:top">May&nbsp;14</td>
+<td><strong>MR2347218</strong></A>&nbsp;Childs, Andrew M.; Wocjan, Paweł On the quantum hardness of solving isomorphism problems as nonabelian hidden shift problems.
+ <EM>Quantum Inf. Comput.</EM> <STRONG> 7 </STRONG> (2007),  no. 5-6, 504--521.   81P68 (68Q17)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Mar&nbsp;18</td>
+<td><strong>MR2304027</strong></A>&nbsp;Buhrman, Harry; Newman, Ilan; Röhrig, Hein; de Wolf, Ronald Robust polynomials and quantum algorithms.
+ <EM>Theory Comput. Syst.</EM> <STRONG> 40 </STRONG> (2007),  no. 4, 379--395.   81P68 (68Q05 94A60)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Mar&nbsp;14</td>
+<td><strong>MR2299422</strong></A>&nbsp;Schulman, Leonard J.; Mor, Tal; Weinstein, Yossi Physical limits of heat-bath algorithmic cooling.
+ <EM>SIAM J. Comput.</EM> <STRONG> 36 </STRONG> (2007),  no. 6, 1729--1747.   81P68 (80A20 82C10)
+</td>
+</td>
+</tr>
+           </table>
+           </div>
+        <div class="mrbar" align="center">
+        2007 (6 reviews)
+        </div>
+        <div class="homedivcontent">
+        <table style="border-collapse: separate; border-spacing: 10px;">
+<tr>
+<td style="vertical-align:top">Jul&nbsp;09</td>
+<td><strong>MR2234563</strong></A>&nbsp;Bose, Ranjan; Pathak, Saumitr A novel compression and encryption scheme using variable model arithmetic coding and coupled chaotic system.
+ <EM>IEEE Trans. Circuits Syst. I. Regul. Pap.</EM> <STRONG> 53 </STRONG> (2006),  no. 4, 848--857.   94A60
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">May&nbsp;15</td>
+<td><strong>MR2254570</strong></A>&nbsp;Laskey, Kathryn Blackmond Quantum physical symbol systems.
+ <EM>J. Log. Lang. Inf.</EM> <STRONG> 15 </STRONG> (2006),  no. 1-2, 109--154.   81P68 (68T30 81P05)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">May&nbsp;04</td>
+<td><strong>MR2250873</strong></A>&nbsp;Gay, Simon J. Quantum programming languages: survey and bibliography.
+ <EM>Math. Structures Comput. Sci.</EM> <STRONG> 16 </STRONG> (2006),  no. 4, 581--600.   81P68 (68Q05 81-02)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Apr&nbsp;26</td>
+<td><strong>MR2253907</strong></A>&nbsp;Janzing, Dominik Implementation complexity of physical processes as a natural extension of computational complexity.
+ <EM>Fortschr. Phys.</EM> <STRONG> 54 </STRONG> (2006),  no. 8-10, 882--897.   81P68 (81P15)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Mar&nbsp;29</td>
+<td><strong>MR2237777</strong></A>&nbsp;Gomez, Domingo; Gutierrez, Jaime; Ibeas, Alvar Cryptanalysis of the quadratic generator.
+<EM> Progress in cryptology—INDOCRYPT 2005, </EM>
+ 118--129, Lecture Notes in Comput. Sci., 3797, <EM>Springer, Berlin,</EM>  2005.    94A60
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Mar&nbsp;23</td>
+<td><strong>MR2244177</strong></A>&nbsp;Binkley, Dave; Danicic, Sebastian; Gyimóthy, Tibor; Harman, Mark; Kiss, Ákos; Korel, Bogdan Theoretical foundations of dynamic program slicing.
+ <EM>Theoret. Comput. Sci.</EM> <STRONG> 360 </STRONG> (2006),  no. 1-3, 23--41.   68Q60 (68N30)
+</td>
+</td>
+</tr>
+           </table>
+           </div>
+        <div class="mrbar" align="center">
+        2006 (11 reviews)
+        </div>
+        <div class="homedivcontent">
+        <table style="border-collapse: separate; border-spacing: 10px;">
+<tr>
+<td style="vertical-align:top">Oct&nbsp;04</td>
+<td><strong>MR2212740</strong></A>&nbsp;Zafiris, Elias Category-theoretic analysis of the notion of complementarity for quantum systems.
+ <EM>Int. J. Gen. Syst.</EM> <STRONG> 35 </STRONG> (2006),  no. 1, 69--89.   81P10 (03G12 18B99)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Sep&nbsp;18</td>
+<td><strong>MR2205915</strong></A>&nbsp;Janzing, Dominik On the computational power of molecular heat engines.
+ <EM>J. Stat. Phys.</EM> <STRONG> 122 </STRONG> (2006),  no. 3, 531--556.   81P68 (68Q05 68Q25 80A10 82C03)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Aug&nbsp;23</td>
+<td><strong>MR2210578</strong></A>&nbsp;Awodey, S.; Forssell, H. Algebraic models of intuitionistic theories of sets and classes.
+ <EM>Theory Appl. Categ.</EM>  15  (2005/06), No. 5, 147--163.   18B05 (03E70 03F60 03G30 18B25 18C10)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Jul&nbsp;28</td>
+<td><strong>MR2194621</strong></A>&nbsp;Clark, David; Hunt, Sebastian; Malacaria, Pasquale Quantitative information flow, relations and polymorphic types.
+ <EM>J. Logic Comput.</EM> <STRONG> 15 </STRONG> (2005),  no. 2, 181--199.   68Q55 (03B40 68N99 94A24)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Jul&nbsp;18</td>
+<td><strong>MR2168489</strong></A>&nbsp;Freedman, Michael J.; Ishai, Yuval; Pinkas, Benny; Reingold, Omer Keyword search and oblivious pseudorandom functions.
+<EM> Theory of cryptography, </EM>
+ 303--324, Lecture Notes in Comput. Sci., 3378, <EM>Springer, Berlin,</EM>  2005.    94A62 (68M12)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Jul&nbsp;13</td>
+<td><strong>MR2147931</strong></A>&nbsp;Levy-dit-Vehel, Françoise; Perret, Ludovic Attacks on public key cryptosystems based on free partially commutative monoids and groups.
+<EM> Progress in cryptology—INDOCRYPT 2004, </EM>
+ 275--289, Lecture Notes in Comput. Sci., 3348, <EM>Springer, Berlin,</EM>  2004.    94A60 (20M14)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">May&nbsp;05</td>
+<td><strong>MR2165504</strong></A>&nbsp;Chi, Dong Pyo; Kim, Jeong San; Lee, Soojoon Quantum algorithms without initializing the auxiliary qubits.
+ <EM>Phys. Rev. Lett.</EM> <STRONG> 95 </STRONG> (2005),  no. 8, 080504, 4 pp.   81P68 (68Q05)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Apr&nbsp;04</td>
+<td><strong>MR2150806</strong></A>&nbsp;Voutsadakis, George Remarks on classifications and adjunctions.
+ <EM>Rend. Circ. Mat. Palermo (2)</EM> <STRONG> 54 </STRONG> (2005),  no. 1, 50--70.   94A15 (03C95 18A40 18B10)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Mar&nbsp;21</td>
+<td><strong>MR2142928</strong></A>&nbsp;Borgström, Johannes; Nestmann, Uwe On bisimulations for the spi calculus.
+ <EM>Math. Structures Comput. Sci.</EM> <STRONG> 15 </STRONG> (2005),  no. 3, 487--552.   94A60 (68Q85)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Mar&nbsp;07</td>
+<td><strong>MR2145293</strong></A>&nbsp;Čiegis, R.; Jakušev, A.; Krylovas, A.; Suboč, O. Parallel algorithms for solution of nonlinear diffusion problems in image smoothing.
+ <EM>Math. Model. Anal.</EM> <STRONG> 10 </STRONG> (2005),  no. 2, 155--172.   94A08 (65M06)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Feb&nbsp;07</td>
+<td><strong>MR2151651</strong></A>&nbsp;Buhrman, Harry; Newman, Ilan; Röhrig, Hein; de Wolf, Ronald Robust polynomials and quantum algorithms.
+<EM> STACS 2005, </EM>
+ 593--604, Lecture Notes in Comput. Sci., 3404, <EM>Springer, Berlin,</EM>  2005.    81P68 (06E30 68Q05)
+</td>
+</td>
+</tr>
+           </table>
+           </div>
+        <div class="mrbar" align="center">
+        2005 (3 reviews)
+        </div>
+        <div class="homedivcontent">
+        <table style="border-collapse: separate; border-spacing: 10px;">
+<tr>
+<td style="vertical-align:top">Dec&nbsp;20</td>
+<td><strong>MR2139190</strong></A>&nbsp;Bjelaković, Igor; Szkoła, Arleta The data compression theorem for ergodic quantum information sources.
+ <EM>Quantum Inf. Process.</EM> <STRONG> 4 </STRONG> (2005),  no. 1, 49--63.   81P68 (68P30 94A29)
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Nov&nbsp;23</td>
+<td><strong>MR2116943</strong></A>&nbsp;Haenni, Rolf Using probabilistic argumentation for key validation in public-key cryptography.
+ <EM>Internat. J. Approx. Reason.</EM> <STRONG> 38 </STRONG> (2005),  no. 3, 355--376.   94A60
+</td>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">Nov&nbsp;08</td>
+<td><strong>MR2132952</strong></A>&nbsp;Yamasaki, Tomohiro; Kobayashi, Hirotada; Imai, Hiroshi Quantum versus deterministic counter automata.
+ <EM>Theoret. Comput. Sci.</EM> <STRONG> 334 </STRONG> (2005),  no. 1-3, 275--297.   81P68 (68Q05 68Q45 68Q70)
+</td>
+</td>
+</tr>
+
+     </table>
+     </div>
+</div>
+</div>
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
